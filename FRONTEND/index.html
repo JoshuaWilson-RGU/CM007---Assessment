@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Library App</title>
     <!-- Link to the external CSS file -->
-    <link rel="stylesheet" href="C:\Users\joshu\Documents\GitHub\CM007---Assessment\FRONTEND\assets\library.jpg" />
-  </head>
+    <link rel="stylesheet" href="CSS/indexstyle.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
   <body>
     <div class="app">
       <!-- Header Section -->
@@ -99,46 +102,6 @@
         <p>LibraryApp® 2025</p>
       </footer>
     </div>
-
-    <!-- JavaScript to handle modal toggling -->
-    <script>
-      // Open the signup modal when the signup button is clicked.
-      document
-        .getElementById("signupButton")
-        .addEventListener("click", function () {
-          document.getElementById("signupModal").style.display = "flex";
-        });
-
-      // Open the login modal when the login button is clicked.
-      document
-        .getElementById("loginButton")
-        .addEventListener("click", function () {
-          document.getElementById("loginModal").style.display = "flex";
-        });
-
-      // Close the signup modal.
-      document
-        .getElementById("closeSignup")
-        .addEventListener("click", function () {
-          document.getElementById("signupModal").style.display = "none";
-        });
-
-      // Close the login modal.
-      document
-        .getElementById("closeLogin")
-        .addEventListener("click", function () {
-          document.getElementById("loginModal").style.display = "none";
-        });
-
-      // Optional: Close modal when clicking outside the modal box.
-      window.addEventListener("click", function (e) {
-        if (e.target.id === "signupModal") {
-          document.getElementById("signupModal").style.display = "none";
-        }
-        if (e.target.id === "loginModal") {
-          document.getElementById("loginModal").style.display = "none";
-        }
-      });
-    </script>
   </body>
 </html>
+<script type="text/javascript" src="../FRONTEND/js/modaljs.js"></script>
