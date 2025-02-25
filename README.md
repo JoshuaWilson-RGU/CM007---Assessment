@@ -28,7 +28,7 @@ This system provides digital management of library operations with role-based ac
 
 ## 🛠️ Tech Stack
 **Frontend**  
-Bootstrap| HTML5 | CSS3  
+HTML5 | CSS3 | JavaScript 
 
 **Backend**  
 PHP  
