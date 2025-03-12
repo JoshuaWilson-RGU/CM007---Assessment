@@ -1,41 +1,57 @@
 <?php
 session_start();
-include 'db_connect.php';
+require 'db_connect.php'; 
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+// Sanitize input
+$email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
+$password = $_POST['password']; 
+$role = filter_var($_POST['role'], FILTER_SANITIZE_STRING);
 
-    // Prepare SQL query to fetch user by email
-    $sql = "SELECT * FROM Users WHERE email = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows > 0) {
-        $user = $result->fetch_assoc();
-        // Verify the password
-        if (password_verify($password, $user['password'])) {
-            // Set session variables
-            $_SESSION['user_id'] = $user['user_id'];
-            $_SESSION['role'] = $user['role'];
-            $_SESSION['name'] = $user['name'];
-            // Redirect based on role
-            if ($user['role'] == 'admin') {
-                header("Location: admin_dashboard.php");
-            } else {
-                header("Location: user_dashboard.php");
-            }
-        } else {
-            echo "Invalid password.";
-        }
-    } else {
-        echo "No user found with this email.";
-    }
-
-    $stmt->close();
+// Check if all fields are filled
+if (empty($email) || empty($password) || empty($role)) {
+    $_SESSION['error'] = "All fields are required.";
+    header("Location: ../../FRONTEND/index.php");
+    exit;
 }
 
-$conn->close();
+// Fetch user matching email and role
+$stmt = $conn->prepare("SELECT user_id, name, password FROM users WHERE email = ? AND role = ?");
+$stmt->bind_param("ss", $email, $role);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows === 1) {
+    $user = $result->fetch_assoc();
+
+    // Verify hashed password
+    if (password_verify($password, $user['password'])) {
+        // Set session variables
+        $_SESSION['user_id'] = $user['user_id'];
+        $_SESSION['name'] = $user['name'];
+        $_SESSION['role'] = $role;
+
+        // Redirect based on role
+        if ($role === 'admin') {
+            header("Location: admin_dashboard.php");
+            exit;
+        } elseif ($role === 'user') {
+            header("Location: user_dashboard.php");
+            exit;
+        } else {
+            // Fallback: redirect to index if the role isn't recognized
+            hheader("Location: ../../FRONTEND/index.php");
+            exit;
+        }
+    } else {
+        // Incorrect password
+        $_SESSION['error'] = "Incorrect password.";
+        header("Location: ../../FRONTEND/index.php");
+        exit;
+    }
+} else {
+    // No user found with that email and role
+    $_SESSION['error'] = "No user found with that email and role.";
+    header("Location: ../../FRONTEND/index.php");
+    exit;
+}
 ?>

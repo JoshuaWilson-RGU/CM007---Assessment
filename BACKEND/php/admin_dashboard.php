@@ -72,6 +72,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
       </footer>
     </div>
   </body>
+  <script type="text/javascript" src="../../FRONTEND/js/modaljs.js"></script>
 </html>
-<!-- JavaScript linked-->
-<script type="text/javascript" src="../../FRONTEND/js/modaljs.js"></script>
+

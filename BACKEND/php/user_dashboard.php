@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'user') {
-    header("Location: ../FRONTEND/index.php");
+    header("Location: /CM007---Assessment/index.html");
     exit();
 }
 ?>

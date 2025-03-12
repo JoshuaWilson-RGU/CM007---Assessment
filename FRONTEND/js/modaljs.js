@@ -1,44 +1,35 @@
-// Function to safely add event listener
-function addListener(elementId, event, callback) {
-  const element = document.getElementById(elementId);
-  if (element) {
-      element.addEventListener(event, callback);
-  }
-}
+document.addEventListener("DOMContentLoaded", () => {
+  function setupModal(buttonId, modalId, closeId, displayStyle) {
+    const button = document.getElementById(buttonId);
+    const modal = document.getElementById(modalId);
+    const close = document.getElementById(closeId);
 
-// Signup modal
-addListener("signupButton", "click", function () {
-  document.getElementById("signupModal").style.display = "flex";
-});
-addListener("closeSignup", "click", function () {
-  document.getElementById("signupModal").style.display = "none";
-});
-
-// Login modal
-addListener("loginButton", "click", function () {
-  document.getElementById("loginModal").style.display = "flex";
-});
-addListener("closeLogin", "click", function () {
-  document.getElementById("loginModal").style.display = "none";
-});
-
-// Logout modal
-addListener("logoutButton", "click", function () {
-  document.getElementById("logoutModal").style.display = "block";
-});
-addListener("closeLogout", "click", function () {
-  document.getElementById("logoutModal").style.display = "none";
-});
-
-// Close modals on outside click
-window.addEventListener("click", function (e) {
-  if (e.target.id === "signupModal") {
-      document.getElementById("signupModal").style.display = "none";
+    if (button && modal && close) {
+      button.addEventListener("click", () => {
+        modal.style.display = displayStyle;
+      });
+      close.addEventListener("click", () => {
+        modal.style.display = "none";
+      });
+    }
   }
-  if (e.target.id === "loginModal") {
-      document.getElementById("loginModal").style.display = "none";
-  }
-  if (e.target.id === "logoutModal") {
-      document.getElementById("logoutModal").style.display = "none";
-  }
+
+  const modals = [
+    { buttonId: "signupButton", modalId: "signupModal", closeId: "closeSignup", displayStyle: "flex" },
+    { buttonId: "loginButton", modalId: "loginModal", closeId: "closeLogin", displayStyle: "flex" },
+    { buttonId: "logoutButton", modalId: "logoutModal", closeId: "closeLogout", displayStyle: "flex" }
+  ];
+
+  modals.forEach(({ buttonId, modalId, closeId, displayStyle }) => {
+    if (document.getElementById(buttonId)) {
+      setupModal(buttonId, modalId, closeId, displayStyle);
+    }
+  });
+
+  window.addEventListener("click", (e) => {
+    const modalIds = ["signupModal", "loginModal", "logoutModal"];
+    if (modalIds.includes(e.target.id)) {
+      document.getElementById(e.target.id).style.display = "none";
+    }
+  });
 });

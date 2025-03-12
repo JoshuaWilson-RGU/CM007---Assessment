@@ -133,3 +133,11 @@ html {
   padding: 1rem;
   background-color: #f1f1f1;
 }
+
+.form-input select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
