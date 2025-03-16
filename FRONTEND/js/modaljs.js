@@ -1,35 +1,27 @@
-document.addEventListener("DOMContentLoaded", () => {
-  function setupModal(buttonId, modalId, closeId, displayStyle) {
-    const button = document.getElementById(buttonId);
-    const modal = document.getElementById(modalId);
-    const close = document.getElementById(closeId);
+document.addEventListener('DOMContentLoaded', () => {
+  const signupButton = document.getElementById('signupButton');
+  const loginButton = document.getElementById('loginButton');
+  const signupModal = document.getElementById('signupModal');
+  const loginModal = document.getElementById('loginModal');
 
-    if (button && modal && close) {
-      button.addEventListener("click", () => {
-        modal.style.display = displayStyle;
-      });
-      close.addEventListener("click", () => {
-        modal.style.display = "none";
-      });
-    }
-  }
+  console.log('signupButton:', signupButton);
+  console.log('loginButton:', loginButton);
 
-  const modals = [
-    { buttonId: "signupButton", modalId: "signupModal", closeId: "closeSignup", displayStyle: "flex" },
-    { buttonId: "loginButton", modalId: "loginModal", closeId: "closeLogin", displayStyle: "flex" },
-    { buttonId: "logoutButton", modalId: "logoutModal", closeId: "closeLogout", displayStyle: "flex" }
-  ];
-
-  modals.forEach(({ buttonId, modalId, closeId, displayStyle }) => {
-    if (document.getElementById(buttonId)) {
-      setupModal(buttonId, modalId, closeId, displayStyle);
-    }
+  signupButton.addEventListener('click', () => {
+      console.log('Sign-up button clicked');
+      if (signupModal) {
+          signupModal.style.display = 'flex'; 
+      } else {
+          console.log('signupModal not found');
+      }
   });
 
-  window.addEventListener("click", (e) => {
-    const modalIds = ["signupModal", "loginModal", "logoutModal"];
-    if (modalIds.includes(e.target.id)) {
-      document.getElementById(e.target.id).style.display = "none";
-    }
+  loginButton.addEventListener('click', () => {
+      console.log('Log-in button clicked');
+      if (loginModal) {
+          loginModal.style.display = 'flex'; 
+      } else {
+          console.log('loginModal not found');
+      }
   });
 });

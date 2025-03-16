@@ -1,5 +1,15 @@
 <?php
 session_start();
+
+if (isset($_SESSION['user_id'])) {
+    if ($_SESSION['role'] === 'admin') {
+        header("Location: ../FRONTEND/admin_dashboard.php");
+        exit();
+    } elseif ($_SESSION['role'] === 'user') {
+        header("Location: ../FRONTEND/user_dashboard.php");
+        exit();
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

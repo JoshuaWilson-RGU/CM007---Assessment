@@ -12,7 +12,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Library App - Admin Dashboard</title>
     <!-- Link to the external CSS file and Google Fonts -->
-    <link rel="stylesheet" href="../../FRONTEND/CSS/indexstyle.css"/>
+    <link rel="stylesheet" href="CSS/indexstyle.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -43,7 +43,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
             <h5>Log Out</h5>
             <button class="modal-close" id="closeLogout">×</button>
         </div>
-        <form action="../php/logout_process.php" method="post">
+        <form action="../BACKEND/php/logout_process.php" method="post">
             <div class="form-field">
                 <p>Are you sure you want to log out?</p>
             </div>
@@ -55,12 +55,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
       <!-- Main Content -->
       <main class="main-container">
         <div class="content">
-          <!-- Add this div -->
           <div class="background-overlay"></div>
           <h2>Welcome to Your Library</h2>
           <p>Browse, Add, and Manage Your Books with Ease!</p>
           <div class="button-group">
-            <button class="btn btn-secondary">Browse Books</button>
+          <a href="browse_books.php" class="btn btn-secondary">Browse Books</a>
           </div>
         </div>
       </main>
@@ -72,6 +71,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
       </footer>
     </div>
   </body>
-  <script type="text/javascript" src="../../FRONTEND/js/modaljs.js"></script>
+  <script src="./js/modaljs.js"></script>
 </html>
 

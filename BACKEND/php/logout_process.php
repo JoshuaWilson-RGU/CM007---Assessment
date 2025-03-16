@@ -1,10 +1,11 @@
 <?php
 session_start();
 
-session_unset();   // Clear session variables
-session_destroy(); // End the session
+echo "Before logout: user_id = " . (isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'not set') . "<br>";
+session_unset();
+session_destroy();
+echo "After logout: user_id = " . (isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 'not set') . "<br>";
 
-// Redirect to index.php in FRONTEND/
 header("Location: ../../FRONTEND/index.php");
 exit();
 ?>
