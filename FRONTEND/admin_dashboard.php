@@ -38,7 +38,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
             <nav class="ms-auto">
                 <ul class="nav">
                     <li class="nav-item"><a href="#" class="nav-link">Home</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link">Book Catalogue</a></li>
+                    <li class="nav-item"><a href="browse_books.php" class="nav-link">Book Catalogue</a></li>
                     <li class="nav-item"><a href="#" class="nav-link">About Us</a></li>
                     <li class="nav-item"><a href="#" class="nav-link">Contact Us</a></li>
                 </ul>
@@ -64,15 +64,16 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
         </div>
 
         <!-- Main Content -->
-        <main class="main-container flex-grow-1 d-flex justify-content-center align-items-center p-4">
-            <div class="content text-center text-white p-3 rounded">
-                <h2>Welcome to Your Library</h2>
-                <p>Browse, Add, and Manage Your Books with Ease!</p>
-                <div class="mt-3">
-                    <a href="browse_books.php" class="btn btn-secondary">Browse Books</a>
-                </div>
-            </div>
-        </main>
+        <main class="main-container d-flex justify-content-center align-items-center p-4">
+  <div class="content text-white">
+    <h2>Welcome to your Admin Dashboard</h2>
+    <p>Browse, Add, and Manage Your Books!</p>
+    <div class="mt-3">
+      <a href="browse_books.php" class="btn btn-secondary">Browse Books</a>
+    </div>
+  </div>
+</main>
+
 
         <!-- Footer -->
         <footer class="footer text-center p-3 bg-light">
@@ -83,7 +84,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <!-- Custom JS (optional, retained from original) -->
     <script src="./js/modaljs.js"></script>
 </body>
 </html>

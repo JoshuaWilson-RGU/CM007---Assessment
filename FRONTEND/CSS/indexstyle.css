@@ -1,95 +1,153 @@
 /* Custom overrides for Bootstrap */
 body {
   font-family: 'Montserrat', sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
+/* Full-page app container */
 .app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
+/* Header at the top */
 .top-bar {
   background-color: #333;
+  color: white;
+  padding: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
 }
 
+/* Main background container */
 .main-container {
   background: url('../assets/lib_books.jpg') no-repeat center center;
   background-size: cover;
-  flex-grow: 1;
+  min-height: 100vh;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
+/* Dark transparent layer over background */
 .content {
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-.content-wrapper {
-  background-color: rgba(255, 255, 255, 0.8);
-  border-radius: 5px;
-  flex-grow: 1;
   display: flex;
   flex-direction: column;
-}
-
-.content-wrapper form {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background-color: rgba(255, 255, 255, 0.9);
-}
-
-.cards-container::-webkit-scrollbar {
-  width: 10px;
-}
-.cards-container::-webkit-scrollbar-thumb {
-  background: #888;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 20px;
   border-radius: 5px;
+  max-width: 600px;
+  text-align: center;
 }
 
-/* Scrollable cards container */
+/* White content box */
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 5px;
+  padding: 20px;
+  gap: 20px;
+}
+
+/* Filter form */
+.content-wrapper form {
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Cards container */
 .cards-container {
-  max-height: 70vh;
-  overflow-y: auto; 
-  flex-grow: 1; 
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
 }
 
-/* Uniform book card styling */
+/* Book card styling */
 .book-card {
   display: flex;
   flex-direction: column;
-  height: 400px; 
-  width: 100%; 
-  overflow: hidden; 
+  width: 250px;
+  background: white;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  overflow: visible; /* Ensure content isn’t hidden */
 }
 
-/* Fixed image size */
+/* Book image */
 .book-card .card-img-top {
-  height: 200px; 
-  width: 100%; 
-  object-fit: cover; 
+  height: 180px;
+  width: 100%;
+  object-fit: contain;
+  display: block;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
 }
 
-/* Card body styling */
+/* Card body - holds text and form */
 .book-card .card-body {
-  flex-grow: 1;
   display: flex;
   flex-direction: column;
-  padding: 10px; 
-  overflow: hidden; 
+  flex-grow: 1; /* Allow the card body to grow */
+  padding: 15px;
+  box-sizing: border-box;
 }
 
-/* Truncate long text */
-.book-card .card-title,
-.book-card .card-text {
-  margin-bottom: 5px;
+/* Title (allow wrapping and limit to 2 lines) */
+.book-card .card-title {
+  margin-bottom: 10px;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap; 
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limit to 2 lines */
+  -webkit-box-orient: vertical;
+  white-space: normal; /* Allow wrapping */
+  font-weight: bold;
+  line-height: 1.3; /* Better line spacing */
 }
 
-/* Ensure admin form fits */
+/* Fallback for non-webkit browsers */
+@supports not (-webkit-line-clamp: 2) {
+  .book-card .card-title {
+    max-height: 3.6em; /* Approximate 2 lines based on line-height */
+    display: block;
+  }
+}
+
+/* Card text (author, genre, availability) */
+.book-card .card-text {
+  margin-bottom: 8px; /* Increased spacing */
+  white-space: normal; /* Allow wrapping */
+  word-wrap: break-word; /* Break long words */
+  overflow-wrap: break-word;
+  line-height: 1.4; /* Better line spacing */
+  overflow: visible; /* Ensure text isn’t cut off */
+  text-overflow: clip; /* Prevent truncation */
+}
+
+/* Admin form (button container) */
 .book-card form {
-  margin-top: auto; /* Pushes button to bottom */
+  margin-top: 0; /* Adjusted since mt-auto is on parent div */
+  box-sizing: border-box;
+}
+
+/* Button full width */
+.book-card form button {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Shadowed box */
+.shadowed-box {
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 5px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
