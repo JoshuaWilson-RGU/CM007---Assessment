@@ -15,7 +15,7 @@ if (isset($_POST['book_id']) && isset($_POST['quantity'])) {
         exit();
     }
 
-    $stmt = $conn->prepare("UPDATE Books SET quantity = quantity + ? WHERE book_id = ?");
+    $stmt = $conn->prepare("UPDATE Books SET quantity = quantity - ? WHERE book_id = ?");
     $stmt->bind_param("ii", $quantity, $book_id);
     if ($stmt->execute()) {
         header("Location: ../../FRONTEND/browse_books.php");
