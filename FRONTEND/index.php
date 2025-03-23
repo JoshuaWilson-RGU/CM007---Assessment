@@ -88,10 +88,6 @@ if (isset($_SESSION['user_id'])) {
                                     <label class="form-label">Confirm Password</label>
                                     <input type="password" class="form-control" name="confirm_password" required/>
                                 </div>
-                                <div class="mb-3 form-check">
-                                    <input type="checkbox" class="form-check-input" name="role_admin" value="admin" id="roleAdmin"/>
-                                    <label class="form-check-label" for="roleAdmin">Sign up as Admin</label>
-                                </div>
                                 <button type="submit" class="btn btn-dark w-100">Sign Up</button>
                             </form>
                         </div>

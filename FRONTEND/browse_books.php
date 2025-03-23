@@ -1,11 +1,25 @@
 <?php
 session_start();
 if (!isset($_SESSION['user_id'])) {
-    header("Location: index.php");
+    header("Location: /CM007---Assessment/FRONTEND/index.php");
     exit();
 }
 $is_admin = $_SESSION['role'] === 'admin';
 include '../BACKEND/php/db_connect.php';
+
+// Fetch user's active loans if not admin
+if (!$is_admin) {
+    $user_id = $_SESSION['user_id'];
+    $loan_sql = "SELECT book_id, COUNT(*) as loaned_count FROM loans WHERE user_id = ? AND return_date IS NULL GROUP BY book_id";
+    $loan_stmt = $conn->prepare($loan_sql);
+    $loan_stmt->bind_param("i", $user_id);
+    $loan_stmt->execute();
+    $loan_result = $loan_stmt->get_result();
+    $user_loans = [];
+    while ($loan_row = $loan_result->fetch_assoc()) {
+        $user_loans[$loan_row['book_id']] = $loan_row['loaned_count'];
+    }
+}
 
 // Get filter and sort values
 $title = $_GET['title'] ?? '';
@@ -20,8 +34,8 @@ $allowed_sort_order = ['ASC', 'DESC'];
 if (!in_array($sort_by, $allowed_sort_by)) $sort_by = 'title';
 if (!in_array($sort_order, $allowed_sort_order)) $sort_order = 'ASC';
 
-// Build query with filters and sorting
-$sql = "SELECT * FROM Books WHERE 1=1";
+// Build query with filters and sorting, including total_quantity for admins
+$sql = "SELECT *, (SELECT COUNT(*) FROM loans WHERE book_id = Books.book_id AND return_date IS NULL) as loaned_out FROM Books WHERE 1=1";
 if ($title) $sql .= " AND title LIKE '%$title%'";
 if ($genre) $sql .= " AND genre LIKE '%$genre%'";
 if ($author) $sql .= " AND author LIKE '%$author%'";
@@ -50,6 +64,7 @@ function sortLink($label, $field, $currentSortBy, $currentSortOrder, $title, $ge
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Browse Books</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="CSS/indexstyle.css">
     <style>
         .book-card { display: flex; flex-direction: column; }
@@ -60,7 +75,7 @@ function sortLink($label, $field, $currentSortBy, $currentSortOrder, $title, $ge
 <div class="app">
     <!-- Top Bar -->
     <div class="top-bar d-flex justify-content-between align-items-center px-3 py-2 bg-dark text-white">
-        <span>Welcome Admin, <?php echo htmlspecialchars($_SESSION['name']); ?>!</span>
+        <span>Welcome<?php echo $is_admin ? ' Admin' : ''; ?>, <?php echo htmlspecialchars($_SESSION['name']); ?>!</span>
         <button class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#logoutModal">Log Out</button>
     </div>
 
@@ -72,8 +87,8 @@ function sortLink($label, $field, $currentSortBy, $currentSortOrder, $title, $ge
         </h1>
         <nav class="ms-auto">
             <ul class="nav">
-                <li class="nav-item"><a href="admin_dashboard.php" class="nav-link">Home</a></li>
-                <li class="nav-item"><a href="#" class="nav-link">Book Catalogue</a></li>
+                <li class="nav-item"><a href="<?php echo $is_admin ? 'admin_dashboard.php' : 'user_dashboard.php'; ?>" class="nav-link">Home</a></li>
+                <li class="nav-item"><a href="browse_books.php" class="nav-link">Book Catalogue</a></li>
                 <li class="nav-item"><a href="#" class="nav-link">About Us</a></li>
                 <li class="nav-item"><a href="#" class="nav-link">Contact Us</a></li>
             </ul>
@@ -102,6 +117,16 @@ function sortLink($label, $field, $currentSortBy, $currentSortOrder, $title, $ge
     <main class="main-container flex-grow-1 p-4">
         <div class="container content-wrapper p-4">
             <h2 class="mb-4">Browse Books</h2>
+            <?php
+            if (isset($_SESSION['success'])) {
+                echo '<div class="alert alert-success">' . $_SESSION['success'] . '</div>';
+                unset($_SESSION['success']);
+            }
+            if (isset($_SESSION['error'])) {
+                echo '<div class="alert alert-danger">' . $_SESSION['error'] . '</div>';
+                unset($_SESSION['error']);
+            }
+            ?>
 
             <!-- Filter Form -->
             <form method="get" class="row g-3 mb-4">
@@ -133,9 +158,9 @@ function sortLink($label, $field, $currentSortBy, $currentSortOrder, $title, $ge
             <div class="mb-3">
                 <strong>Sort By:</strong>
                 <?php
-                    echo sortLink('Title', 'title', $sort_by, $sort_order, $title, $genre, $author);
-                    echo sortLink('Author', 'author', $sort_by, $sort_order, $title, $genre, $author);
-                    echo sortLink('Recently Added', 'date_added', $sort_by, $sort_order, $title, $genre, $author);
+                echo sortLink('Title', 'title', $sort_by, $sort_order, $title, $genre, $author);
+                echo sortLink('Author', 'author', $sort_by, $sort_order, $title, $genre, $author);
+                echo sortLink('Recently Added', 'date_added', $sort_by, $sort_order, $title, $genre, $author);
                 ?>
             </div>
 
@@ -146,8 +171,6 @@ function sortLink($label, $field, $currentSortBy, $currentSortOrder, $title, $ge
                         Add New Book
                     </button>
                 </div>
-
-                <!-- Add Book Modal -->
                 <div class="modal fade" id="addBookModal" tabindex="-1" aria-labelledby="addBookModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -201,8 +224,21 @@ function sortLink($label, $field, $currentSortBy, $currentSortOrder, $title, $ge
                                     <p class="card-text mb-1">Author: <?php echo htmlspecialchars($row['author']); ?></p>
                                     <p class="card-text mb-1">Genre: <?php echo htmlspecialchars($row['genre']); ?></p>
                                     <p class="card-text mb-1">Available: <?php echo (int)$row['quantity']; ?></p>
+                                    <?php if ($is_admin): ?>
+                                        <p class="card-text mb-1">Loaned Out: <?php echo (int)$row['loaned_out']; ?></p>
+                                    <?php endif; ?>
                                     <div class="mt-auto">
                                         <button class="btn btn-primary btn-sm w-100 mb-1" data-bs-toggle="modal" data-bs-target="#detailModal<?php echo (int)$row['book_id']; ?>">Details</button>
+                                        <?php if (!$is_admin): ?>
+                                            <?php if ($row['quantity'] > 0): ?>
+                                                <form method="post" action="../BACKEND/php/loan_book.php" class="w-100 mb-1">
+                                                    <input type="hidden" name="book_id" value="<?php echo $row['book_id']; ?>">
+                                                    <button type="submit" class="btn btn-success btn-sm w-100" title="Loan this book">
+                                                        <i class="bi bi-plus-circle"></i>
+                                                    </button>
+                                                </form>
+                                            <?php endif; ?>
+                                        <?php endif; ?>
                                         <?php if ($is_admin): ?>
                                             <form method="post">
                                                 <input type="hidden" name="book_id" value="<?php echo (int)$row['book_id']; ?>">
@@ -247,12 +283,32 @@ function sortLink($label, $field, $currentSortBy, $currentSortOrder, $title, $ge
                                                 <tr><th>Author:</th><td><?php echo htmlspecialchars($row['author']); ?></td></tr>
                                                 <tr><th>Genre:</th><td><?php echo htmlspecialchars($row['genre']); ?></td></tr>
                                                 <tr><th>Available:</th><td><?php echo (int)$row['quantity']; ?></td></tr>
+                                                <?php if ($is_admin): ?>
+                                                    <tr><th>Loaned Out:</th><td><?php echo (int)$row['loaned_out']; ?></td></tr>
+                                                <?php endif; ?>
                                                 <tr><th>Date Added:</th><td><?php echo date('d/m/Y', strtotime($row['date_added'])); ?></td></tr>
                                             </table>
                                             <div class="mt-3">
                                                 <h6>Blurb:</h6>
                                                 <p><?php echo htmlspecialchars($row['blurb'] ?? 'No blurb available.'); ?></p>
                                             </div>
+                                            <?php if (!$is_admin): ?>
+                                                <?php
+                                                $loaned_count = $user_loans[$row['book_id']] ?? 0;
+                                                echo "<p>You have loaned $loaned_count copies of this book.</p>";
+                                                if ($row['quantity'] > 0): ?>
+                                                    <form method="post" action="../BACKEND/php/loan_book.php" class="d-inline">
+                                                        <input type="hidden" name="book_id" value="<?php echo $row['book_id']; ?>">
+                                                        <button type="submit" class="btn btn-success me-2">Loan this book</button>
+                                                    </form>
+                                                <?php endif;
+                                                if ($loaned_count > 0): ?>
+                                                    <form method="post" action="../BACKEND/php/return_book.php" class="d-inline">
+                                                        <input type="hidden" name="book_id" value="<?php echo $row['book_id']; ?>">
+                                                        <button type="submit" class="btn btn-warning">Return this book</button>
+                                                    </form>
+                                                <?php endif; ?>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
