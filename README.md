@@ -23,7 +23,6 @@ This system provides digital management of library operations with role-based ac
   - Due date reminders
 - **Security**
   - Secure login authentication
-  - Form validation
   - Session management
 
 ## 🛠️ Tech Stack
