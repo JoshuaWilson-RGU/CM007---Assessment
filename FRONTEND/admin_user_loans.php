@@ -6,21 +6,41 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
 }
 include '../BACKEND/php/db_connect.php';
 
-// Fetch all active loans
-$loans_sql = "SELECT u.name, b.title, l.borrow_date, l.due_date
+if (!isset($_GET['user_id']) || !is_numeric($_GET['user_id'])) {
+    header("Location: user_management.php");
+    exit();
+}
+$user_id = $_GET['user_id'];
+
+$sql_user = "SELECT name FROM users WHERE user_id = ?";
+$stmt_user = $conn->prepare($sql_user);
+$stmt_user->bind_param("i", $user_id);
+$stmt_user->execute();
+$result_user = $stmt_user->get_result();
+if ($result_user->num_rows == 0) {
+    header("Location: user_management.php");
+    exit();
+}
+$user = $result_user->fetch_assoc();
+$user_name = $user['name'];
+
+$sql_loans = "SELECT b.title, l.borrow_date, l.due_date, l.return_date
               FROM loans l
-              JOIN users u ON l.user_id = u.user_id
-              JOIN Books b ON l.book_id = b.book_id
-              WHERE l.return_date IS NULL
+              JOIN books b ON l.book_id = b.book_id
+              WHERE l.user_id = ?
               ORDER BY l.borrow_date DESC";
-$loans_result = $conn->query($loans_sql);
+$stmt_loans = $conn->prepare($sql_loans);
+$stmt_loans->bind_param("i", $user_id);
+$stmt_loans->execute();
+$result_loans = $stmt_loans->get_result();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Library App - Admin Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library App - User Loans</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="CSS/indexstyle.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,15 +49,12 @@ $loans_result = $conn->query($loans_sql);
 </head>
 <body>
     <div class="app">
-        <!-- Thin Top Bar -->
         <div class="top-bar d-flex justify-content-between align-items-center px-3 py-2 bg-dark text-white">
             <span>Welcome, Admin: <?php echo htmlspecialchars($_SESSION['name']); ?>!</span>
             <div class="ms-auto">
                 <button class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#logoutModal">Log Out</button>
             </div>
         </div>
-
-        <!-- Main Header -->
         <header class="main-header d-flex justify-content-between align-items-center px-3 py-2 bg-white">
             <h1 class="d-flex align-items-center mb-0">
                 Library App
@@ -46,15 +63,13 @@ $loans_result = $conn->query($loans_sql);
             <nav class="ms-auto">
                 <ul class="nav">
                     <li class="nav-item"><a href="admin_dashboard.php" class="nav-link">Home</a></li>
-                    <li class="nav-item"><a href="browse_books.php" class="nav-link">Book Catalogue</a></li>
-                    <li class="nav-item"><a href="user_management.php" class="nav-link">User Management</a></li>
+                    <li class="nav-item"><a href="browse_books.php" class="nav-link">Book Management</a></li>
+                    <li class="nav-item"><a href="user_management.php" class="nav-link active">User Management</a></li>
                     <li class="nav-item"><a href="#" class="nav-link">About Us</a></li>
                     <li class="nav-item"><a href="#" class="nav-link">Contact Us</a></li>
                 </ul>
             </nav>
         </header>
-
-        <!-- Logout Modal -->
         <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -71,56 +86,54 @@ $loans_result = $conn->query($loans_sql);
                 </div>
             </div>
         </div>
-
-        <!-- Main Content -->
         <main class="main-container p-4">
             <div class="container content-wrapper p-4">
-                <h2 class="text-center mb-4">Welcome to Your Admin Dashboard</h2>
-                <p class="text-center">Browse, Add, and Manage Your Books!</p>
-                <div class="text-center mt-3 mb-5">
-                    <a href="browse_books.php" class="btn btn-secondary">Browse Books</a>
-                </div>
-
-                <!-- Active Loans Section -->
-                <h3 class="mb-3">Active User Loans</h3>
-                <?php if ($loans_result->num_rows > 0): ?>
+                <h2 class="text-center mb-4">Loan History for <?php echo htmlspecialchars($user_name); ?></h2>
+                <?php if ($result_loans->num_rows > 0): ?>
                     <div class="table-responsive">
                         <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th>User Name</th>
                                     <th>Book Title</th>
                                     <th>Borrow Date</th>
                                     <th>Due Date</th>
+                                    <th>Return Date</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php while ($loan = $loans_result->fetch_assoc()): ?>
+                                <?php while ($loan = $result_loans->fetch_assoc()): ?>
                                     <tr>
-                                        <td><?php echo htmlspecialchars($loan['name']); ?></td>
                                         <td><?php echo htmlspecialchars($loan['title']); ?></td>
                                         <td><?php echo date('d/m/Y', strtotime($loan['borrow_date'])); ?></td>
                                         <td><?php echo date('d/m/Y', strtotime($loan['due_date'])); ?></td>
+                                        <td><?php echo $loan['return_date'] ? date('d/m/Y', strtotime($loan['return_date'])) : 'N/A'; ?></td>
+                                        <td>
+                                            <?php
+                                            if ($loan['return_date']) {
+                                                echo 'Returned';
+                                            } elseif (strtotime($loan['due_date']) < time()) {
+                                                echo 'Overdue';
+                                            } else {
+                                                echo 'On Loan';
+                                            }
+                                            ?>
+                                        </td>
                                     </tr>
                                 <?php endwhile; ?>
                             </tbody>
                         </table>
                     </div>
                 <?php else: ?>
-                    <p class="text-center">No active loans at this time.</p>
+                    <p class="text-center">No loans found for this user.</p>
                 <?php endif; ?>
             </div>
         </main>
-
-        <!-- Footer -->
         <footer class="footer text-center p-3 bg-light">
             <hr />
             <p>LibraryApp® 2025</p>
         </footer>
     </div>
-
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script src="./js/modaljs.js"></script>
 </body>
 </html>

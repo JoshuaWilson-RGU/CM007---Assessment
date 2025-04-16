@@ -9,7 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
     
-    // Determine role: if checkbox is ticked, set role to 'admin', otherwise default to 'user'
+    // Determine role: if checkbox is ticked - set role to 'admin', otherwise default to 'user'
     $role = (isset($_POST['role_admin']) && $_POST['role_admin'] === 'admin') ? 'admin' : 'user';
 
     // Validate required fields
@@ -36,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     $stmt->bind_param("ssss", $email, $hashed_password, $role, $name);
 
-    // Execute and set success message
+    // Execute and success message
     if ($stmt->execute()) {
         $_SESSION['success'] = "Sign-up successful! You can now log in.";
         header("Location: ../index.php");

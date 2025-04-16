@@ -49,7 +49,6 @@ if (isset($_SESSION['user_id'])) {
             <nav class="ms-auto">
                 <ul class="nav">
                     <li class="nav-item"><a href="#" class="nav-link">Home</a></li>
-                    <li class="nav-item"><a href="#" class="nav-link">Book Catalogue</a></li>
                     <li class="nav-item"><a href="#" class="nav-link">About Us</a></li>
                     <li class="nav-item"><a href="#" class="nav-link">Contact Us</a></li>
                 </ul>

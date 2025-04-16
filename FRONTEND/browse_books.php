@@ -86,13 +86,16 @@ function sortLink($label, $field, $currentSortBy, $currentSortOrder, $title, $ge
             <img width="50" height="50" src="https://img.icons8.com/keek/100/books.png" alt="books" class="ms-2">
         </h1>
         <nav class="ms-auto">
-            <ul class="nav">
-                <li class="nav-item"><a href="<?php echo $is_admin ? 'admin_dashboard.php' : 'user_dashboard.php'; ?>" class="nav-link">Home</a></li>
-                <li class="nav-item"><a href="browse_books.php" class="nav-link">Book Catalogue</a></li>
-                <li class="nav-item"><a href="#" class="nav-link">About Us</a></li>
-                <li class="nav-item"><a href="#" class="nav-link">Contact Us</a></li>
-            </ul>
-        </nav>
+        <ul class="nav">
+            <li class="nav-item"><a href="<?php echo $is_admin ? 'admin_dashboard.php' : 'user_dashboard.php'; ?>" class="nav-link">Home</a></li>
+            <li class="nav-item"><a href="browse_books.php" class="nav-link">Book Catalogue</a></li>
+            <?php if ($_SESSION['role'] === 'admin'): ?>
+            <li class="nav-item"><a href="user_management.php" class="nav-link">User Management</a></li>
+            <?php endif; ?>
+            <li class="nav-item"><a href="#" class="nav-link">About Us</a></li>
+            <li class="nav-item"><a href="#" class="nav-link">Contact Us</a></li>
+        </ul>
+</nav>
     </header>
 
     <!-- Logout Modal -->

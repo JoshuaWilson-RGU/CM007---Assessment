@@ -22,7 +22,7 @@ if ($loan_count_row['loan_count'] >= 3) {
     exit();
 }
 
-// Check if the book is available
+// Check availability of the book
 $sql = "SELECT quantity FROM Books WHERE book_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $book_id);
@@ -48,7 +48,7 @@ $update_stmt->bind_param("ii", $new_quantity, $book_id);
 $update_stmt->execute();
 
 // Insert loan record with 1-month duration
-$due_date = date('Y-m-d H:i:s', strtotime('+1 month')); // Changed from +14 days to +1 month
+$due_date = date('Y-m-d H:i:s', strtotime('+1 month')); 
 $loan_sql = "INSERT INTO loans (user_id, book_id, borrow_date, due_date) VALUES (?, ?, NOW(), ?)";
 $loan_stmt = $conn->prepare($loan_sql);
 $loan_stmt->bind_param("iis", $user_id, $book_id, $due_date);

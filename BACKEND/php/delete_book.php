@@ -10,7 +10,7 @@ if (isset($_POST['book_id'])) {
     $book_id = $_POST['book_id'];
     $deletion_log = "Attempting to delete book ID: $book_id\n";
 
-    // Fetch the cover_image path from the database
+    // Cover images
     $stmt_select = $conn->prepare("SELECT cover_image FROM Books WHERE book_id = ?");
     $stmt_select->bind_param("i", $book_id);
     $stmt_select->execute();
@@ -20,7 +20,7 @@ if (isset($_POST['book_id'])) {
         $image_filename = $row['cover_image'];
         
         if (!empty($image_filename)) {
-            // Define the base directory where cover images are stored
+            // This is the base directory where cover images are stored
             $base_cover_path = '/CM007---Assessment/FRONTEND/assets/covers/';
             $full_image_path = $_SERVER['DOCUMENT_ROOT'] . $base_cover_path . $image_filename;
             
@@ -44,20 +44,28 @@ if (isset($_POST['book_id'])) {
     
     $stmt_select->close();
     
-    // Delete the book from the database
-    $stmt_delete = $conn->prepare("DELETE FROM Books WHERE book_id = ?");
-    $stmt_delete->bind_param("i", $book_id);
-    if ($stmt_delete->execute()) {
-        // Success - redirect
-        header("Location: ../../FRONTEND/browse_books.php");
-        exit();
+    // Delete related rows in the loans table
+    $stmt_delete_loans = $conn->prepare("DELETE FROM Loans WHERE book_id = ?");
+    $stmt_delete_loans->bind_param("i", $book_id);
+    if ($stmt_delete_loans->execute()) {
+        // Delete the book from the database
+        $stmt_delete = $conn->prepare("DELETE FROM Books WHERE book_id = ?");
+        $stmt_delete->bind_param("i", $book_id);
+        if ($stmt_delete->execute()) {
+            // Success = redirect
+            header("Location: ../../FRONTEND/browse_books.php");
+            exit();
+        } else {
+            $deletion_log .= "Database deletion error: " . $conn->error . "\n";
+            file_put_contents('file_deletion_log.txt', $deletion_log, FILE_APPEND);
+            echo "Error: " . $conn->error;
+            echo "<pre>$deletion_log</pre>";
+        }
+        $stmt_delete->close();
     } else {
-        $deletion_log .= "Database deletion error: " . $conn->error . "\n";
-        file_put_contents('file_deletion_log.txt', $deletion_log, FILE_APPEND);
-        echo "Error: " . $conn->error;
-        echo "<pre>$deletion_log</pre>";
+        echo "Error deleting related loans: " . $conn->error;
     }
-    $stmt_delete->close();
+    $stmt_delete_loans->close();
 } else {
     echo "Missing book_id.";
 }

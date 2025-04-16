@@ -22,13 +22,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (isset($_FILES['cover_image']) && $_FILES['cover_image']['error'] === UPLOAD_ERR_OK) {
-        // Add some debugging
         error_log("Processing file upload: " . $_FILES['cover_image']['name']);
         
         $file_name = uniqid() . '_' . basename($_FILES['cover_image']['name']);
         $file_path = $upload_dir . $file_name;
 
-        // Add more debugging
+    
         error_log("Attempting to move file to: " . $file_path);
         
         if (move_uploaded_file($_FILES['cover_image']['tmp_name'], $file_path)) {
